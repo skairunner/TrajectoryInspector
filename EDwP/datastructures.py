@@ -77,6 +77,7 @@ class stsegment:
         if self.s1.t > self.s2.t:
             raise ValueError("t not sorted: %d, %d" % (s1.t, s2.t))
         self.length = self.calclen()
+        self.inserted = False
 
     def calclen(self):
         # euclidian for now
@@ -150,6 +151,13 @@ class Trajectory:
         s += str(self.segments[-1])
         return s + ">"
 
+    @property
+    def length(self):
+        s = 0
+        for seg in self.segments:
+            s += seg.length
+        return s
+
     # Clone this trajectory, replacing e1 with newsegs
     def cloneAndReplace(self, newseg1, newseg2):
         # probably also sort it
@@ -170,6 +178,11 @@ class Trajectory:
     def insert(traj1, traj2):
         e1 = traj1[0]
         e2 = traj2[0]
+
+        # if you're inserting onto a segment of length 0, just return none.
+        if e1.s1 == e1.s2:
+            return traj1.cloneAndReplace(e1, e1)
+
         # find the proper p to split the first segment
         # which is the closest p, using vector math
         a = Vector2(e1.s1.x, e1.s1.y)
@@ -184,41 +197,38 @@ class Trajectory:
         distq = v.dot(q)
 
         p = v * distq
+        # if point not on segment, set to far point.
         if distq <= dista: # the new point is "behind" a
             pstatus = -1
-            t = e1.s1.t - e1.s1.dist(p) / e1.speed
-            pt = stpointFromVector2(p, t)
+            pt = e1.s1
         elif distb <= distq: # the new point is "in front of" b
             pstatus = 1
-            t = e1.s2.t + e1.s2.dist(p) / e1.speed
-            pt = stpointFromVector2(p, t)
+            pt = e1.s2
         else:
             pstatus = 0
             t = e1.s1.t + e1.s1.dist(p) / e1.speed
             pt = stpointFromVector2(p, t)
-        print(f"a:{dista} b:{distb} q:{distq}")
-        print(f"pt: {pt} e1: {e1} pstatus:{pstatus}")
+
         # if point is already on this segment
         # if e1.s1.equivalent(pt) or e1.s2.equivalent(pt):
-        if e1.s1 == pt or e1.s2 == pt:
-            return None
+        # if e1.s1 == pt or e1.s2 == pt:
+        #     return None
 
         # Next, if the point is ahead, check it's not already in Traj
-        if pstatus == 1 and len(traj1) > 1:
-            if pt == traj1[1].s2:
-                return None
+        # if pstatus == 1 and len(traj1) > 1:
+        #     if pt == traj1[1].s2:
+        #         return None
+        # might not be needed with the recursion prevention
+
         # If the point is behind, the next EDwP should catch duplicate.
         # Now, do the right things
         if pstatus == -1:
             newseg = stsegment(pt, e1.s1)
             return traj1.cloneAndReplace(newseg, e1)
-        if pstatus == 0:
-            newseg1 = stsegment(e1.s1, pt)
-            newseg2 = stsegment(pt, e1.s2)
-            return traj1.cloneAndReplace(newseg1, newseg2)
-        # pstatus == 1:
-        newseg = stsegment(e1.s2, pt)
-        return traj1.cloneAndReplace(e1, newseg)
+        # if pt is s2, same code.
+        newseg1 = stsegment(e1.s1, pt)
+        newseg2 = stsegment(pt, e1.s2)
+        return traj1.cloneAndReplace(newseg1, newseg2)
     
     # Return a shallow copy of T1, excluding first segment.
     def rest(self):
