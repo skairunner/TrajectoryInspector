@@ -1,6 +1,6 @@
 import json
 import math
-from datastructures import *
+from Trajectory import *
 import sys
 
 # to be used for EDwP_avg
