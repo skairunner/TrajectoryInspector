@@ -1,0 +1,93 @@
+Initial dataset, compressed: 10GB
+Uncompressed: 40GB
+
+Total rows: 25665057
+excluded: 7411215
+Excluded ratio: 28.88
+
+
+Unlike the commonly cited hierarchical edge bundling (Zhou et al 2013), the data in this project is real positional data rather than abstracted start point to end point data.
+
+
+
+
+
+Lit Review
+- Compare existing visualizations or methods, mention usage or discarding.
+
+Design
+- task analysis, design rationale
+- visual encoding scheme
+- layout design
+
+
+Standards
+- difficulty of problem to be solved
+- effort made for making project
+- quality of system
+- findings from results
+- writing quality of report & docs.
+
+Presentation
+- Presentation slides
+- Presentation skill
+Needs to show demo and slides.
+
+Presentation Template
+	Introduction
+		motivation
+		task problem to solve
+		Description of data (data size, attributes, where data)
+	System and visualization design
+		Introduce system overview
+		Slide for each visualiation view 
+			(1) visual encoding scheme
+			(2) design rationale (why this design instead of others)
+	Results
+		most interesting patterns found
+		demo
+
+Final report
+	Outline
+		each section/subsection. write 1/2 sentences to desc content
+	Literature review
+	Introduction & Abstract
+	Technique
+	Evaluation
+		Show that visualization has been used to visualize real world data.
+	Conclusion & future work
+
+=====
+
+Introduction format (1 paragraph per)
+	background
+	challenges in existing techniques
+	methods you proposed
+	contributions
+	organization of proposal
+
+Related work
+	Related analysis techniques
+	related visualiation techniques
+	related applications
+
+System overview
+	design rationales
+	overview figure of design
+	paragraph per module in system
+	scenario about how to use system (simulation of user usage)
+
+Analysis technique
+	Data preprocessing techniques
+	Data analysis techniques
+
+Visualiation design
+	List of tasks (task abstraction)
+	user interface (overview) - cite design tasks
+	design of each view
+	interactions	
+Evaluzation
+	Case study - write down interesting conclusions
+
+Conclusion
+	Conclude projects, list potential work
