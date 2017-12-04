@@ -4,11 +4,15 @@ import os
 pathlensum = 0
 pathsum = 0
 
+POSTIME = True
+
 def getTime(ping):
+    if POSTIME:
+        return ping[3]
     return ping[2]
 
 # only segments of len 10 and up are accepted.
-def tryAppend(output, segment, limit=10):
+def tryAppend(output, segment, limit=5):
     global pathlensum, pathsum
     if len(segment) > limit:
         output.append(segment)
@@ -26,10 +30,13 @@ for file in os.listdir(root):
     # sort paths by time
     path = sorted(path, key=getTime)
     for i, obj in enumerate(path[:-1]):
-        current_segment.append(obj)
+        if POSTIME:
+            current_segment.append(obj[:2] + [obj[3]])
+        else:
+            current_segment.append(obj[:3])
         t1 = getTime(obj)
         t2 = getTime(path[i+1])
-        if t2 - t1 > 1 * 60: # over N minutes
+        if t2 - t1 > 2000 * 60: # over N minutes
             tryAppend(output, current_segment)
             current_segment = []
     current_segment.append(path[-1])

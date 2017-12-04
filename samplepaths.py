@@ -11,14 +11,15 @@ conn = psycopg2.connect("dbname=flightpaths user=postgres password=dangerouscour
 cur = conn.cursor()
 
 def simplepath(icao, path):
-    cur.execute("SELECT lat, long, fseen FROM paths WHERE ICAO=%s ORDER BY Fseen", (icao,))
+    cur.execute("SELECT lat, long, fseen, postime FROM paths WHERE ICAO=%s ORDER BY fseen", (icao,))
     out = []
     for row in cur.fetchall():
         lat = float(row["lat"])
         lon = float(row["long"])
         fseen = int(row["fseen"])
-        out.append([lon, lat, fseen])
-    out = sorted(out, key=lambda x:x[2])
+        postime = int(row["postime"])
+        out.append([lon, lat, fseen, postime])
+    # out = sorted(out, key=lambda x:x[2])
 
     with open(path + icao + ".json", "w") as f:
         json.dump(out, f)

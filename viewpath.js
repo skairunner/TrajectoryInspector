@@ -80,8 +80,7 @@ function init() {
 		/*
 			[
 				{
-					"icao": "ICAO",
-					"path": [
+					[
 						[subpath1]
 						[subpath2]
 					]
@@ -89,15 +88,15 @@ function init() {
 			]
 		*/
 		console.log(d)
-		
+
 		d3.select("#paths")
 		  .selectAll(".pathgroup")
 		  .data(d.map(el=>el.path)) // for each icao
 		  .enter()
 		  .append("g")
 		  .classed("pathgroup", true)
-		  .attr("stroke", (d,i)=>color10[i])
-		  .attr("stroke-width", 0.2)
+		  .style("stroke", (d,i)=>color10[i])
+		  .style("stroke-width", 0.5)
 		  .selectAll("g")
 		  .data(d=>d) // for each subtrajectory
 		  .enter()

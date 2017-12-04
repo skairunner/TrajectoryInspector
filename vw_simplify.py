@@ -120,7 +120,7 @@ if __name__=="__main__":
         output = []
         for arr in data:
             if len(arr) > 10:
-                arr = simplify(arr, ratio=0.5)
+                arr = simplify(arr, ratio=0.2)
                 arr = [x[:3] for x in arr] # strip out area factor
             output.append(arr)
         with open(outdir + file, "w") as f:
