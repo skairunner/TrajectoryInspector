@@ -36,7 +36,7 @@ for file in os.listdir(root):
             current_segment.append(obj[:3])
         t1 = getTime(obj)
         t2 = getTime(path[i+1])
-        if t2 - t1 > 2000 * 60: # over N minutes
+        if t2 - t1 > 1000 * 60: # over N minutes
             tryAppend(output, current_segment)
             current_segment = []
     current_segment.append(path[-1])
