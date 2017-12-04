@@ -17,5 +17,5 @@ for file in os.listdir(rootdir):
         }
         bigjson.append(obj)
 
-with open(output + ".json", "w") as f:
+with open(output, "w") as f:
     json.dump(bigjson, f, indent=4)

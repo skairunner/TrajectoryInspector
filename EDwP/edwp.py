@@ -2,6 +2,7 @@ import json
 import math
 from Trajectory import *
 import sys
+import random
 
 # to be used for EDwP_avg
 def averager(traj1, traj2, val):
@@ -46,6 +47,59 @@ def EDwP_inserted(traj1, traj2, average=False):
         return averager(traj1, traj2, val)
     return val
 
+def EDwP_it(traj1, traj2, average=False):
+    stack = [[traj1, traj2, -1, [None, None, None], False]]
+    retval = None
+    while len(stack) > 0:
+        t1 = stack[-1][0]
+        t2 = stack[-1][1]
+        counter = stack[-1][2]
+        vals = stack[-1][3]
+        skipbranch = stack[-1][4] # after a branch, skip another branch
+        if counter == -1: # counter being -1 means initial
+            if t1 == None or t2 == None:
+                retval = float("+inf")
+                stack.pop()
+                continue
+            if len(t1) == len(t2) == 0:
+                retval = 0
+                stack.pop()
+                continue
+            if (len(t1) == 0) or (len(t2) == 0):
+                retval = float("+inf")
+                stack.pop()
+                continue
+            counter += 1
+
+        if counter >= 3: # all 3 cases done
+            retval = min(*vals)
+            if average:
+                retval = averager(t1, t2, retval)
+            stack.pop()
+            continue
+        # go through branches 0,1,2
+        if retval is not None:
+            if retval == 0:
+                # shortcircuit
+                retval = 0
+                stack.pop()
+                continue
+            vals[counter] = retval
+            if counter == 0: # First case needs to have more value
+                vals[counter] += t1.replace(t2) * t1.coverage(t2)
+            retval = None
+            counter += 1
+        else: # retval is none? do work
+            if counter == 0:
+                stack.append([t1.rest(), t2.rest(), -1, [None, None, None], False])
+            else:
+                if not skipbranch:
+                    if counter == 1:
+                        stack.append([t1.rest(), t2.rest(), -1, [None, None, None], True])
+                    else: # counter == 2
+                        stack.append([t1.rest(), t2.rest(), -1, [None, None, None], True])
+    return retval
+
 # convert [[x, y, t]...] into a traj
 def trajectoryFromArray(obj):
     stpoints = []
@@ -61,16 +115,24 @@ def trajectoryFromArray(obj):
     return Trajectory(segments)
 
 
-def testEDwP(filename):
+def testEDwP(filename, doprint=True):
     with open(filename) as f:
         data = json.load(f)
     Ts = [trajectoryFromArray(a) for a in data]
     # import rpdb2; rpdb2.start_embedded_debugger("1234")
     average = True
-    print(EDwP(Ts[0], Ts[1], average), "should be 5.65")
-    print(EDwP(Ts[2], Ts[1], average), "should be 4.64")
-    print(EDwP(Ts[0], Ts[2], average), "should be 7.77")
-    print(EDwP(Ts[3], Ts[4], False), "should be 89.65")
+    v1 = EDwP(Ts[0], Ts[1], average)
+    v2 = EDwP(Ts[2], Ts[1], average)
+    v3 = EDwP(Ts[0], Ts[2], average)
+    v4 = EDwP(Ts[3], Ts[4], False)
+    if doprint:
+        print(v1, "should be 5.65")
+        print(v2, "should be 4.64")
+        print(v3, "should be 7.77")
+        print(v4, "should be 89.65")
+
+def profilecall(t1, t2):
+    EDwP(t1, t2)
 
 def testPrint():
     s1 = stsegment(stpoint(0, 1, 2), stpoint(2, 3, 4))
@@ -91,4 +153,33 @@ def testPrint():
 
 if __name__=="__main__":
     # import rpdb2; rpdb2.start_embedded_debugger("1234")
-    testEDwP("trajectories.json")
+    # testEDwP("trajectories.json")
+
+    if False:
+        paths = []
+        for x in range(2):
+            path = []
+            for i in range(10):
+                c = [random.uniform(-10, 10),
+                     random.uniform(-10, 10),
+                     i]
+                path.append(c)
+            paths.append(trajectoryFromArray(path))
+        for i in range(1):
+            profilecall(*paths)
+
+        quit()
+
+    testEDwP("trajectories.json", True)
+    quit()
+    import json
+    import time
+    with open("../data_segmented-paths/4BB467.json") as f:
+        data = json.load(f)
+    t0 = trajectoryFromArray(data[0])
+    t1 = trajectoryFromArray(data[1])
+    timestart = time.perf_counter()
+    print("t0: %d t1: %d" % (len(t0), len(t1)))
+    print(EDwP(t0, t1, average=True))
+    timeend = time.perf_counter()
+    print("Elapsed time: %d" % (timeend))

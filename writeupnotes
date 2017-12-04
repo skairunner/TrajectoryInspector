@@ -5,12 +5,16 @@ Total rows: 25665057
 excluded: 7411215
 Excluded ratio: 28.88
 
+Total aircraft tracked: 42030
+
 
 Unlike the commonly cited hierarchical edge bundling (Zhou et al 2013), the data in this project is real positional data rather than abstracted start point to end point data.
 
+The per-plane segment grouping might be improved if I modified the algorithm to use great arc distances instead of Euclidean, which I used because that was what the paper used.
 
 
 
+========
 
 Lit Review
 - Compare existing visualizations or methods, mention usage or discarding.

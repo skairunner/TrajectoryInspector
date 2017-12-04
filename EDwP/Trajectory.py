@@ -131,10 +131,10 @@ class stsegment:
             plen = 0
         if plen > b.length:
             plen = b.length
-        result = b * plen / b.length
+        result = a + b * plen / b.length
         # time is interpolated between s1 and s2
-        t = self.s1.t + (self.s2.t - self.s1.t) * plen / b.length
-        return stpointFromVector2(a + result, t)
+        t = self.s1.t + self.s1.dist(result) / self.speed
+        return stpointFromVector2(result, t)
 
     def __str__(self):
         return f"{str(self.s1)} -> {str(self.s2)}"

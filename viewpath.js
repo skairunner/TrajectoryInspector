@@ -85,9 +85,11 @@ function init() {
 						[subpath1]
 						[subpath2]
 					]
-				}
+				},
 			]
 		*/
+		console.log(d)
+		
 		d3.select("#paths")
 		  .selectAll(".pathgroup")
 		  .data(d.map(el=>el.path)) // for each icao
@@ -95,6 +97,7 @@ function init() {
 		  .append("g")
 		  .classed("pathgroup", true)
 		  .attr("stroke", (d,i)=>color10[i])
+		  .attr("stroke-width", 0.2)
 		  .selectAll("g")
 		  .data(d=>d) // for each subtrajectory
 		  .enter()
@@ -103,10 +106,88 @@ function init() {
 		  .attr("d", d=>{
 		  	// repackage data to be GeoJSON
 		  	let geoobj = {type: "LineString", coordinates:[]}
-		  	geoobj.coordinates = d.map(el=>[el.long, el.lat])
+		  	geoobj.coordinates = d.map(el=>[el[0], el[1]])
 		  	return path(geoobj);
 		  });
 	})
+
+	// draw annotated segments
+	// d3.json("A976C7.annotated.json", (e, d)=>{
+	// 	// Structure of json file:
+	// 	/*
+	// 		[
+	// 			{
+	// 				"icao": "ICAO",
+	// 				"path": [
+	// 					[subpath1]
+	// 					[subpath2]
+	// 				]
+	// 			},
+	// 		]
+	// 	*/
+	// 	console.log(d);
+	// 	d3.select("#paths")
+	// 	  .selectAll("path")
+	// 	  .data(d)
+	// 	  .enter()
+	// 	  .append("path")
+	// 	  .attr("stroke", (d,i)=>d.label == -1 ? "#000" : color10[d.label])
+	// 	  .attr('stroke-width', d=>d.rep ? 0.3 : 0.1)
+	// 	  .attr("opacity", 0.7)
+	// 	  .attr("d", d=>{
+	// 	  	// repackage data to be GeoJSON
+	// 	  	let geoobj = {type: "LineString", coordinates:[]}
+	// 	  	geoobj.coordinates = d.path.map(el=>[el[0], el[1]])
+	// 	  	return path(geoobj);
+	// 	  });
+	// })
+
+	// draw annotated segments, in a grid
+	// d3.json("A976C7.annotated.json", (e, d)=>{
+	// 	// Structure of json file:
+	// 	/*
+	// 		[
+	// 			"path": [],
+	// 			"label": #
+	// 		]
+	// 	*/
+	// 	let lineobj = d3.line().x(d=>d[0]).y(d=>d[1]);
+	// 	d3.select(".graticules")
+	// 	  .style("display", "none");
+	// 	d3.select(".countries")
+	// 	  .style("display", "none");
+	// 	let enter = d3
+	// 	  .select("#paths")
+	// 	  .attr("transform", `translate(0, 0)`)
+	// 	  .selectAll(".path")
+	// 	  .data(d) // for each icao
+	// 	  .enter()
+	// 	  .append("g")
+	// 	  .attr("transform", (d,i)=>`translate(${50 * (i % 8)},${50 * Math.floor(i / 8)})`);
+	// 	enter.append("rect")
+	// 	  .style("stroke", "#000")
+	// 	  .style("stroke-width", 1)
+	// 	  .attr("width", 50)
+	// 	  .attr("height", 50)
+	// 	  .style("fill", "none");
+	// 	enter
+	// 	  .append("path")
+	// 	  .attr("transform", "translate(120, 0)")
+	// 	  .attr("stroke", (d,i)=>{
+	// 	  		if (d.label == -1)
+	// 	  			return "#000";
+	// 	  		return color10[d.label];
+	// 	  })
+	// 	  .attr("stroke-width", d=>d.rep ? 2 : 1)
+	// 	  .attr("opacity", d=>d.rep ? 1 : 1)
+	// 	  .attr("d", d=>{
+	// 	  	return lineobj(d.path);
+	// 	  	// repackage data to be GeoJSON
+	// 	  	let geoobj = {type: "LineString", coordinates:[]}
+	// 	  	geoobj.coordinates = d.path.map(el=>[el[0], el[1]])
+	// 	  	return path(geoobj);
+	// 	  });
+	// })
 
 	let map = d3.select("#map").select(".all");
 

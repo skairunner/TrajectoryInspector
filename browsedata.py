@@ -28,10 +28,13 @@ for row in cur.fetchall():
     lat = float(row["lat"])
     lon = float(row["long"])
     fseen = float(row["fseen"])
-    output.append([lat, lon, fseen])
+    postime = float(row["postime"])
+    output.append([lat, lon, fseen, postime])
 
 with open(icao + ".path", "w") as f:
     json.dump(output, f)
+
+quit()
 
 # output in geojson format
 geojson = {}
