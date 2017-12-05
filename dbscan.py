@@ -3,7 +3,7 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 import sys
 
-with open("A976C7.out.json") as f:
+with open("A0C42C.out.json") as f:
     matrix = json.load(f)
 
 for row in matrix:
@@ -11,12 +11,12 @@ for row in matrix:
         if val == "NaN":
             row[i] = sys.float_info.max
 
-db = DBSCAN(eps=0.001, min_samples=5, metric="precomputed")
+db = DBSCAN(eps=0.005, min_samples=2, metric="precomputed")
 db.fit(matrix)
 labels = db.labels_
 print(labels)
 # repackage data
-with open("data_segmented-paths/A976C7.json") as segfile:
+with open("data_segmented-paths/A0C42C.json") as segfile:
     segments = json.load(segfile)
 
 # for each label, find the representative.
@@ -59,5 +59,5 @@ for i, segment in enumerate(segments):
     }
     out.append(obj)
 
-with open("A976C7.annotated.json", "w") as outfile:
+with open("A0C42C.annotated.json", "w") as outfile:
     json.dump(out, outfile)

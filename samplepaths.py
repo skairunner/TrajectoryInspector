@@ -29,7 +29,7 @@ def getplaneinfo(icao, path):
     with open(path + icao + ".json", "w") as f:
         json.dump(dict(cur.fetchone()), f)
 
-N = 10
+N = 50
 cur.execute("SELECT ICAO FROM aircraft LIMIT %d" % (N))
 icaos = [row[0] for row in cur.fetchall()]
 for i, icao in enumerate(icaos):

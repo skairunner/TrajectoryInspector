@@ -75,7 +75,7 @@ function init() {
 	});*/
 
 	// draw segments!
-	d3.json("segmentedpaths.json", (e, d)=>{
+	d3.json("simplesegments.json", (e, d)=>{
 		// Structure of json file:
 		/*
 			[
@@ -91,14 +91,15 @@ function init() {
 
 		d3.select("#paths")
 		  .selectAll(".pathgroup")
-		  .data(d.map(el=>el.path)) // for each icao
+		  .data(d.map(el=>el)) // for each icao
 		  .enter()
 		  .append("g")
 		  .classed("pathgroup", true)
-		  .style("stroke", (d,i)=>color10[i])
+		  .attr("id", d=>d.icao)
+		  .style("stroke", (d,i)=>color10[i % 10])
 		  .style("stroke-width", 0.5)
 		  .selectAll("g")
-		  .data(d=>d) // for each subtrajectory
+		  .data(d=>d.path) // for each subtrajectory
 		  .enter()
 		  .append("path")
 		  .attr("opacity", 0.7)
@@ -111,7 +112,7 @@ function init() {
 	})
 
 	// draw annotated segments
-	// d3.json("A976C7.annotated.json", (e, d)=>{
+	// d3.json("A0C42C.annotated.json", (e, d)=>{
 	// 	// Structure of json file:
 	// 	/*
 	// 		[

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace edwp
 {
-    class Trajectory
+    public class Trajectory
     {
         public Trajectory(List<stsegment> segments)
         {

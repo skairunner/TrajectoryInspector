@@ -95,9 +95,20 @@ namespace edwp
         static void outputMatrix(string filein, string fileout)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
             var trajs = LoadFromFile(filein);
+            var AABBs = new List<AABB>();
             int N = trajs.Count;
             var output = new float[N,N];
+
+            // initialize AABBs
+            for (int i = 0; i < N; i++)
+            {
+                AABBs.Add(new AABB(trajs[i]));
+            }
+            stopwatch.Stop();
+            Console.WriteLine("Prep time: {0}", stopwatch.Elapsed);
+            stopwatch.Reset();
             stopwatch.Start();
             for (int y = 0; y < N; y++) // go row by row
             {
@@ -110,19 +121,21 @@ namespace edwp
                     else
                     {
                         output[x, y] = EDwP.doEDwP(trajs[x], trajs[y], true);
+                        //output[x, y] = EDwP.doBoundedEDwP(trajs[x], AABBs[x], trajs[y], AABBs[y], true);
                     }
                 }
             }
             stopwatch.Stop();
             File.WriteAllText(fileout, JsonConvert.SerializeObject(output));
-            Console.WriteLine(stopwatch.Elapsed);
+            Console.WriteLine("Runtime: {0}", stopwatch.Elapsed);
             Console.WriteLine("Done.");
         }
 
         static void Main(string[] args)
         {
             // outputMatrix("A976C7.json", "A976C7.out.json");
-            testRandomTraj(40, 40);
+            outputMatrix(args[1], args[2]);
+            // testRandomTraj(40, 40);
             Console.ReadKey();
         }
     }

@@ -13,6 +13,16 @@ namespace edwp
             return val / (traj1.getTrajectoryLength() + traj2.getTrajectoryLength());
         }
 
+        public static float doBoundedEDwP(Trajectory traj1, AABB aabb1, Trajectory traj2, AABB aabb2, bool average=false)
+        {
+            // if the two trajectories aren't bounded, do a shitty difference check instead.
+            if(AABB.Intersects(aabb1, aabb2))
+                return doEDwP(traj1, traj2, average);
+            if (average)
+                return AABB.ReplacementDistance(aabb1, aabb2);
+            return AABB.ReplacementDistance(aabb1, aabb2) * AABB.Coverage(aabb1, aabb2);
+        }
+
         public static float doEDwP(Trajectory traj1, Trajectory traj2, bool average = false)
         {
             if (traj1 == null || traj2 == null)
