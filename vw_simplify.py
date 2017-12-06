@@ -111,6 +111,7 @@ def simplify(data, ratio=0.5, threshold=None, number=None):
 if __name__=="__main__":
     import os
     import json
+    import math
 
     root = "data_segmented-paths/"
     outdir = "data_simple-segments/"
@@ -119,9 +120,13 @@ if __name__=="__main__":
             data = json.load(f)
         output = []
         for arr in data:
-            if len(arr) > 10:
-                arr = simplify(arr, ratio=0.2)
-                arr = [x[:3] for x in arr] # strip out area factor
+            L = len(arr)
+            if L > 50:
+                L = math.floor(L * .1 + 1)
+            else:
+                L = len(arr)
+            arr = simplify(arr, number=L)
+            arr = [x[:3] for x in arr] # strip out area factor
             output.append(arr)
         with open(outdir + file, "w") as f:
             json.dump(output, f)

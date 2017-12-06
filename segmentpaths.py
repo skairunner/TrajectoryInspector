@@ -12,7 +12,7 @@ def getTime(ping):
     return ping[2]
 
 # only segments of len 10 and up are accepted.
-def tryAppend(output, segment, limit=50):
+def tryAppend(output, segment, limit=15):
     global pathlensum, pathsum
     if len(segment) > limit:
         output.append(segment)
@@ -43,7 +43,13 @@ for file in os.listdir(root):
             current_segment.append(obj[:3])
         t1 = getTime(obj)
         t2 = getTime(path[i+1])
-        if t2 - t1 > 2000 * 60: # over N minutes
+        # also break up if time length of path is over one hour
+        if len(current_segment) > 1:
+            if t2 - current_segment[0][2] > 30 * 60 * 1000:
+                segmentsAccepted += tryAppend(output, current_segment)
+                pathsegments.append(current_segment)
+                current_segment = []
+        elif t2 - t1 > 60 * 1000: # over N seconds
             segmentsAccepted += tryAppend(output, current_segment)
             pathsegments.append(current_segment)
             current_segment = []

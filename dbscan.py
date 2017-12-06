@@ -3,8 +3,25 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 import sys
 
-with open("A0C42C.out.json") as f:
+root = "data_simple-segments/"
+
+with open("edwpmanifest.json") as f:
+    filenames = json.load(f)
+
+with open("distmatrix.json") as f:
     matrix = json.load(f)
+
+# load all segments
+segments = [] # list of list of segments
+fileindex = {} # mapping from index to mother filename
+c = 0
+for filename in filenames:
+    with open(root + filename) as f:
+        data = json.load(f)
+    for traj in data:
+        segments.append(traj)
+        fileindex[c] = filename
+        c += 1
 
 for row in matrix:
     for i, val in enumerate(row):
@@ -14,17 +31,17 @@ for row in matrix:
 db = DBSCAN(eps=0.005, min_samples=2, metric="precomputed")
 db.fit(matrix)
 labels = db.labels_
-print(labels)
 # repackage data
-with open("data_segmented-paths/A0C42C.json") as segfile:
-    segments = json.load(segfile)
-
 # for each label, find the representative.
 maxlabel = max(labels)
 labeldict = {}
 for i, seg in enumerate(segments):
     L = labeldict.setdefault(labels[i], [])
     L.append(i)
+
+# print histogram, basically
+for label in labeldict:
+    print("{:<2}\t{:>3}".format(int(label), len(labeldict[label])))
 
 def metric_nodelength(seg):
     return len(seg)
@@ -54,10 +71,11 @@ for i, segment in enumerate(segments):
     label = labels[i]
     obj = {
         "path": segment,
+        "icao": fileindex[i],
         "label": int(label),
         "rep": True if repdict[label] == i else False 
     }
     out.append(obj)
 
-with open("A0C42C.annotated.json", "w") as outfile:
+with open("dbscanned.json", "w") as outfile:
     json.dump(out, outfile)

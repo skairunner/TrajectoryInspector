@@ -92,11 +92,18 @@ namespace edwp
             Console.WriteLine(stopwatch.Elapsed);
         }
 
-        static void outputMatrix(string filein, string fileout)
+        // read filenames and indexes from manifest
+        static void outputMatrix(string manifest, string dirin, string fileout)
         {
             var stopwatch = new System.Diagnostics.Stopwatch();
             stopwatch.Start();
-            var trajs = LoadFromFile(filein);
+            var manifestfile = File.OpenText(manifest);
+            var trajinfo = JsonConvert.DeserializeObject<List<string>>(manifestfile.ReadToEnd());
+            var trajs = new List<Trajectory>();
+            foreach (var filename in trajinfo)
+            {
+                trajs.AddRange(LoadFromFile(Path.Combine(dirin, filename)));
+            }
             var AABBs = new List<AABB>();
             int N = trajs.Count;
             var output = new float[N,N];
@@ -134,7 +141,7 @@ namespace edwp
         static void Main(string[] args)
         {
             // outputMatrix("A976C7.json", "A976C7.out.json");
-            outputMatrix(args[1], args[2]);
+            outputMatrix(args[0], args[1], args[2]);
             // testRandomTraj(40, 40);
             Console.ReadKey();
         }
