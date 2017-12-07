@@ -1,0 +1,1 @@
+python -m cProfile -o edwp.prof edwp.py

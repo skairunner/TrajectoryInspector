@@ -8,12 +8,15 @@ winpdb-master
 d3-geo-projection.min.js
 
 # misc generated data files
-flightpaths.json
-fullpaths.json
 segmentedpaths.json
-simple-segments.json
+simplesegments.json
 simplify_segmented_example.json
+edwpmanifest.json
+distmatrix.json
+dbscanned.json
 
+# profiling file
+*.prof
 
 ## Visual Studio crud ignoring borrowed from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 # User-specific files

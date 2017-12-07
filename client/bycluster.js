@@ -32,6 +32,10 @@ function init() {
 				}
 			}
 		*/
+		function getLabel(me) {
+			return +me.getAttribute("id").split("label")[1];
+		}
+
 		let clusters = 
 			d3.select("#paths")
 			  .selectAll(".cluster")
@@ -41,6 +45,28 @@ function init() {
 			  .classed("cluster", true)
 			  .attr("id",d=>"label" + d.label)
 			  .datum(d=>d.segments)
+			  .style("stroke", function(d){
+			  	  let label = getLabel(this);
+			  	  if (label == -1)
+			  	  	  return "#000"
+			  	  return color10[label % 10];
+			  })
+			  .style("stroke-width", function(d){
+			  	  let label = getLabel(this);
+			  	  return label == -1 ? 0.3 : 0.5;
+			  })
+			  .on("mouseenter", function(d) {
+			  	  let label = getLabel(this);
+			  	  if (label == -1) return;
+			  	  let col = d3.lab(color10[label % 10]);
+			  	  d3.select(this)
+			  	    .style("stroke", col.brighter())
+			  })
+			  .on("mouseleave", function(d){
+			  	  let label = getLabel(this);
+			  	  d3.select(this)
+			  	    .style("stroke", color10[label % 10])
+			  })
 			  .selectAll(".segment")
 			  .data(d=>d)
 			  .enter()
@@ -49,16 +75,6 @@ function init() {
 			  .each(function(d){
 			  	  d3.select(this)
 			  	    .classed("icao" + d.icao, true);
-			  })
-			  .style("stroke", function(d){
-			  	  let label = +this.parentNode.getAttribute("id").split("label")[1];
-			  	  if (label == -1)
-			  	  	  return "#000"
-			  	  return color10[label % 10];
-			  })
-			  .style("stroke-width", function(d){
-			  	  let label = this.parentNode.getAttribute("id").split("label")[1];
-			  	  return label == -1 ? 0.3 : 0.5;
 			  })
 			  .attr("d", d=>{
 			  	  // repackage data to be GeoJSON
@@ -78,7 +94,7 @@ function init() {
 			  	map.attr("transform", d3.event.transform)
 			});
 
-	map.append("rect")
+	map.insert("rect", ":first-child")
 	   .attr("x", -800)
 	   .attr("y", -800)
 	   .attr("width", 1600)
