@@ -75,69 +75,38 @@ function init() {
 	});*/
 
 	// // draw segments!
-	// d3.json("segmentedpaths.json", (e, d)=>{
-	// 	// Structure of json file:
-	// 	/*
-	// 		[
-	// 			{
-	// 				[
-	// 					[subpath1]
-	// 					[subpath2]
-	// 				]
-	// 			},
-	// 		]
-	// 	*/
-	// 	console.log(d)
-
-	// 	d3.select("#paths")
-	// 	  .selectAll(".pathgroup")
-	// 	  .data(d.map(el=>el)) // for each icao
-	// 	  .enter()
-	// 	  .append("g")
-	// 	  .classed("pathgroup", true)
-	// 	  .attr("id", d=>d.icao)
-	// 	  .style("stroke", (d,i)=>color10[i % 10])
-	// 	  .style("stroke-width", 0.5)
-	// 	  .selectAll("g")
-	// 	  .data(d=>d.path) // for each subtrajectory
-	// 	  .enter()
-	// 	  .append("path")
-	// 	  .attr("opacity", 0.7)
-	// 	  .attr("d", d=>{
-	// 	  	// repackage data to be GeoJSON
-	// 	  	let geoobj = {type: "LineString", coordinates:[]}
-	// 	  	geoobj.coordinates = d.map(el=>[el[0], el[1]])
-	// 	  	return path(geoobj);
-	// 	  });
-	// })
-
-	//draw annotated segments
-	d3.json("dbscanned.json", (e, d)=>{
+	d3.json("../segmentedpaths.json", (e, d)=>{
 		// Structure of json file:
 		/*
 			[
 				{
-					"icao": "ICAO",
-					"path": [
+					[
 						[subpath1]
 						[subpath2]
 					]
 				},
 			]
 		*/
-		console.log(d);
+		console.log(d)
+
 		d3.select("#paths")
-		  .selectAll("path")
-		  .data(d)
+		  .selectAll(".pathgroup")
+		  .data(d.map(el=>el)) // for each icao
+		  .enter()
+		  .append("g")
+		  .classed("pathgroup", true)
+		  .attr("id", d=>d.icao)
+		  .style("stroke", (d,i)=>color10[i % 10])
+		  .style("stroke-width", 0.5)
+		  .selectAll("g")
+		  .data(d=>d.path) // for each subtrajectory
 		  .enter()
 		  .append("path")
-		  .attr("stroke", (d,i)=>d.label == -1 ? "#000" : color10[d.label])
-		  .attr('stroke-width', d=>d.rep ? 0.3 : 0.3)
 		  .attr("opacity", 0.7)
 		  .attr("d", d=>{
 		  	// repackage data to be GeoJSON
 		  	let geoobj = {type: "LineString", coordinates:[]}
-		  	geoobj.coordinates = d.path.map(el=>[el[0], el[1]])
+		  	geoobj.coordinates = d.map(el=>[el[0], el[1]])
 		  	return path(geoobj);
 		  });
 	})
