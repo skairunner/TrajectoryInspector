@@ -25,7 +25,7 @@ def tryAppend(output, segment, limit=15):
 root = "data_perplane/"
 outdir = "data_segmented-paths/"
 blacklist = ["A234C0.json"]
-for file in os.listdir(root):
+for file in os.listdir(root)[:50]:
     if file in blacklist:
         continue
     with open(root + file) as f:
@@ -43,16 +43,16 @@ for file in os.listdir(root):
             current_segment.append(obj[:3])
         t1 = getTime(obj)
         t2 = getTime(path[i+1])
+        if t2 - t1 > 60 * 1000: # over 60 seconds
+            segmentsAccepted += tryAppend(output, current_segment)
+            pathsegments.append(current_segment)
+            current_segment = []
         # also break up if time length of path is over one hour
-        if len(current_segment) > 1:
+        elif len(current_segment) > 1:
             if t2 - current_segment[0][2] > 30 * 60 * 1000:
                 segmentsAccepted += tryAppend(output, current_segment)
                 pathsegments.append(current_segment)
                 current_segment = []
-        elif t2 - t1 > 60 * 1000: # over N seconds
-            segmentsAccepted += tryAppend(output, current_segment)
-            pathsegments.append(current_segment)
-            current_segment = []
     current_segment.append(path[-1])
     segmentsAccepted += tryAppend(output, current_segment)
     pathsegments.append(current_segment)
