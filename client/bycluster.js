@@ -3,7 +3,11 @@ document.addEventListener("DOMContentLoaded", init)
 function init() {
 	var projection = d3.geoWinkel3(); //geoBaker
 	var path = d3.geoPath(projection);
-	var color10 = d3.schemeCategory20;
+	var color10 = d3.schemeCategory10;
+	var graticule =
+			d3.geoGraticule()
+			  .stepMinor([15, 15]);
+
 	d3.json("countries.geo.json", (e, d)=>{
 		d3.select(".countries")
 		  .append("path")
@@ -14,7 +18,7 @@ function init() {
 		d3.select(".graticules")
 		  .append("path")
 		  .attr("id", "graticule")
-		  .datum(d3.geoGraticule())
+		  .datum(graticule)
 		  .attr("d", path)
 	});
 
@@ -35,47 +39,68 @@ function init() {
 				}
 			}
 		*/
+		console.log(d);
 		function getLabel(me) {
 			return +me.getAttribute("id").split("label")[1];
 		}
 
+		function getColor(me, i) {
+			let label = getLabel(me);
+			if (label == -1) return d3.lab("#000");
+			let metaid = +me.parentNode.getAttribute("metacluster");
+			let col = d3.lab(color10[metaid % 10]);
+			return col.darker(0.2 * i);
+		}
+
 		let clusters = 
 			d3.select("#paths")
-			  .selectAll(".cluster")
+			  .selectAll(".clustergroup")
 			  .data(d)
+			  .enter()
+			  .append("g")
+			  .classed("clustergroup", true)
+			  .attr("metacluster", (d,i)=>i)
+			  .on("mouseenter", function(d, i){
+			  	  if (i == 0) return; // metagroup0 is the outliers
+			  	  d3.select(this)
+			  	    .raise()
+			  	    .selectAll(".cluster")
+			  	    .each(function(d,i) {
+					  	  let col = getColor(this, i);
+					  	  d3.select(this)
+					  	    .style("stroke", col.darker())
+					  	    .style("stroke-width", 1)
+					  	    .attr("opacity", 1);
+			  	    });
+			  })
+			  .on("mouseleave", function(d, i){
+			  	  if (i == 0) return; // metagroup0 is the outliers
+			  	  d3.select(this)
+			  	    .selectAll(".cluster")
+			  	    .each(function(d, i) {
+					  	  let col = getColor(this, i);
+					  	  d3.select(this)
+					  	    .transition()
+					  	    .duration(300)
+					  	    .style("stroke", col)
+					  	    .style("stroke-width", 0.5)
+					  	    .attr("opacity", .8);
+			  	    });
+			  })
+			  .selectAll(".cluster")
+			  .data(d=>d)
 			  .enter()
 			  .append("g")
 			  .classed("cluster", true)
 			  .attr("id",d=>"label" + d.label)
 			  .datum(d=>d.segments)
 			  .attr("opacity", .8)
-			  .style("stroke", function(d){
-			  	  let label = getLabel(this);
-			  	  if (label == -1)
-			  	  	  return "#000"
-			  	  return color10[label % 10];
+			  .style("stroke", function(d, i){
+			  	  return getColor(this, i);
 			  })
 			  .style("stroke-width", function(d){
 			  	  let label = getLabel(this);
 			  	  return label == -1 ? 0.3 : 0.5;
-			  })
-			  .on("mouseenter", function(d) {
-			  	  let label = getLabel(this);
-			  	  if (label == -1) return;
-			  	  let col = d3.lab(color10[label % 10]);
-			  	  d3.select(this)
-			  	    .style("stroke", col.darker())
-			  	    .style("stroke-width", 1)
-			  	    .attr("opacity", 1)
-			  	    .raise()
-			  })
-			  .on("mouseleave", function(d){
-			  	  let label = getLabel(this);
-			  	  if (label == -1) return;
-			  	  d3.select(this)
-			  	    .style("stroke", color10[label % 10])
-			  	    .attr("opacity", 0.8)
-			  	    .style("stroke-width", 0.5);
 			  })
 			  .selectAll(".segment")
 			  .data(d=>d)

@@ -144,6 +144,28 @@ def lufucluster(data, threshold=0.1):
             labels[el] = i
     return labels
 
+def mindistance_cluster(cluster, metacluster, data):
+    return min(data[cluster.rep][x.rep] for x in metacluster)
+
+# using Lu & Fu's nearest neighbor algo on clusters of clusters
+def lufu_metacluster(data, clusters, threshold=0.1):
+    clusters = list(clusters)
+    cluster2 = [[clusters[0]]]
+    for i in range(len(clusters)):
+        cluster = clusters[i]
+        if cluster.label == -1:
+            continue
+        underthreshold = []
+        for metacluster in cluster2:
+            d = mindistance_cluster(cluster, metacluster, data)
+            if d < threshold:
+                underthreshold.append([metacluster, d])
+        if len(underthreshold) == 0:
+            cluster2.append([cluster])
+        else:
+            smallest = min(underthreshold, key=lambda el: el[1])
+            smallest[0].append(cluster)
+    return cluster2
 
 def metric_nodelength(seg):
     return len(seg)
@@ -160,7 +182,7 @@ if DODBSCAN:
     db.fit(matrix)
     labels = db.labels_
 else:
-    labels = lufucluster(matrix, 0.1)
+    labels = lufucluster(matrix, 0.15)
 
 # repackage data
 maxlabel = max(labels)
@@ -180,36 +202,38 @@ for cluster in labeldict.values():
         todelete.append(cluster.label)
 for label in todelete:
     del labeldict[label]
-labeldict[-1] = outliers
 
+# relabel all clusters starting from 0
+counter = 0
+newlabeldict = {}
+for cluster in labeldict.values():
+    if cluster.label != -1:
+        cluster.label = counter
+        newlabeldict[counter] = cluster
+        counter += 1
+labeldict = newlabeldict
+labeldict[-1] = outliers
 
 # also find the rep for purposes of distance
 for label in labeldict:
     labeldict[label].findrep()
+
+# make metaclusters
+metaclusters = lufu_metacluster(matrix, labeldict.values(), 0.1)
 
 # print histogram, basically, for quick diagnostics
 for label in labeldict:
     cluster = labeldict[label]
     print("{:<2}\t{:>3}".format(int(label), len(cluster)))
 
-# finding cluster representatives
-repdict = {} # dictionary of representatives per cluster
-for label in labeldict:
-    if label == -1:
-        continue
-    maxlen = 0;
-    maxindex = -1;
-    cluster = labeldict[label]
-    for segid in cluster.segmentids:
-        score = metric_pathlength(segments[segid])
-        if score > maxlen:
-            maxlen = score
-            maxindex = i
-    repdict[label] = maxindex
+# now cluster clusters into groups
 
-out = []
-for cluster in labeldict.values():
-    out.append(cluster.serialize())
+out = [[outliers.serialize()]]
+for metacluster in metaclusters:
+    metaarr = []
+    for cluster in metacluster:
+        metaarr.append(cluster.serialize())
+    out.append(metaarr)
 
 with open("dbscanned.json", "w") as outfile:
     json.dump(out, outfile)
