@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<meta charset="utf-8">
 <html>
 <head>
 	<title>Clusterview</title>
@@ -60,7 +61,6 @@
 	table {
 		border-collapse: collapse;
 		border-top: 1px solid black;
-		width: 40vw;
 		table-layout: fixed
 	}
 
@@ -97,15 +97,33 @@
 		margin-left: 20px;
 		margin-right: 10px;
 		line-height: 1.5;
-		width: 20vw;
+		width: 200px;
 		text-align: center;
+		cursor: pointer;
+		float: left;
+	}
+
+	#clear {
+		float: left;
+		font-size: 12px;
+		vertical-align: middle;
+		cursor: pointer;
+		border-bottom-style: dotted;
+		border-bottom-width: 1px;
+	}
+
+	#UI {
+		padding-bottom: 15px;
 	}
 </style>
 
 <body>
-	<div id="buttons" style="display: none"></div>
-	<div id="filter" style="background-color:#fff; color:#000">Filter: <span class="filtertype">Show All</span></div>
-	<div class="content">
+	<div id="UI">
+		<div id="buttons" style="display: none"></div>
+		<div id="filter" style="background-color:#fff; color:#000">Filter: <span class="filtertype">Show All</span></div>
+		<div id="clear">[clear]</div>
+	</div>
+	<div class="content" style="clear: left">
 		<div id="svgdiv">
 			<svg id="map" height="600" width="800" viewBox="0 0 800 600">
 				<g class="all">

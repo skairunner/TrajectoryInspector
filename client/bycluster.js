@@ -78,7 +78,9 @@ function init() {
 		update();
 	}
 	d3.select("#filter")
-	  .on("click", ()=>setfilter(null, null))
+	  .on("click", ()=>setfilter(null, null));
+	d3.select("#clear")
+	  .on("click", ()=>setfilter(null, null));
 
 
 	// returns true if should display normally, false otherwise.
@@ -424,15 +426,23 @@ function init() {
 	  	    drawCountries();
 	  });
 
+	MAGICNUM = 1200;
     function resizesvg() {
     	let W = window.innerWidth;
     	let w = W * .50;
-    	if (W < 1281)
+    	if (W < MAGICNUM)
     		w = W * .9;
     	d3.select("svg")
     	  .transition()
     	  .duration(300)
     	  .attr("width", w);
+
+    	// also resize table width
+    	if (W < MAGICNUM)
+    		d3.select("table").style("width", "80vw")
+    	else
+    		d3.select("table").style("width", "40vw");
+
     }
     resizesvg();
 	d3.select(window)
