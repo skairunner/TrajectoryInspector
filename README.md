@@ -29,4 +29,4 @@ Script                     | Description
 
 Utilities           | Description
 --------------------|-----------
-`createmanifest.py` | Combines all json files in given directory and outputs as json.
+`combinefiles.py`   | Combines all json files in given directory and outputs as json.

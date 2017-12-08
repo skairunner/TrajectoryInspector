@@ -6,14 +6,17 @@ screenshots
 visvalingamwyatt-master
 winpdb-master
 d3-geo-projection.min.js
+distmatrix*
 
 # misc generated data files
+client/logos
 segmentedpaths.json
 simplesegments.json
 simplify_segmented_example.json
 edwpmanifest.json
 distmatrix.json
 dbscanned.json
+icaodb.json
 
 # profiling file
 *.prof
