@@ -19,7 +19,68 @@ function init() {
 	var countryshapes, pathinfo, icaodb = null;
 
 	// first element is type, second is data
-	var filter = {type: null, how: null}; 
+	var filter = {type: null, how: null};
+	var filtercss = {
+		icao: {
+			fillcol: "#8e0000",
+			fontcol: "#FFFFFF",
+			name: "ICAO"
+		},
+		operator: {
+			fillcol: "#4c4cff",
+			fontcol: "#FFFFFF",
+			name: "operator"
+		},
+		country: {
+			fillcol: "#0b280b",
+			fontcol: "#FFFFFF",
+			name: "country"
+		},
+		meta: {
+			fillcol: "#8727db",
+			fontcol: "#FFFFFF",
+			name: "cluster"
+		},
+		other: {
+			fillcol: "#AAAAAA",
+			fontcol: "#FFFFFF",
+			name: "Show all"
+		}
+	}
+
+	function setfilter(type, how) {
+		filter.type = type;
+		filter.how  = how;
+
+		let fillcol, fontcol, text;
+		if (type in filtercss) {
+			let f = filtercss[type];
+			fillcol = f.fillcol;
+			fontcol = f.fontcol;
+			text    = f.name;
+		} else {
+			let f = filtercss.other;
+			fillcol = f.fillcol;
+			fontcol = f.fontcol;
+			text    = f.name;
+		}
+		d3.select("#filter")
+		  .transition()
+		  .duration(300)
+		  .styleTween("background-color", function(d){
+		  	  return d3.interpolateLab(d3.select(this).style("background-color"),
+		  	  			fillcol);
+		  })
+		  .style("color", fontcol);
+
+		d3.select(".filtertype")
+		  .text(text);
+		update();
+	}
+	d3.select("#filter")
+	  .on("click", ()=>setfilter(null, null))
+
+
 	// returns true if should display normally, false otherwise.
 	function checkfilter(icao, meta) {
 		if (filter.type == null)
@@ -41,10 +102,10 @@ function init() {
 		let label = getLabel(me);
 		if (label == -1)
 			return 0.3;
-		if (checkfilter(icao, meta)) {
-			return 1;
-		} else if (mouseovered) {
-			return 0.5;
+		if (mouseovered) {
+			return 1.15;
+		} else if (checkfilter(icao, meta)) {
+			return 0.9;
 		} else {
 			return 0.2;
 		}
@@ -62,6 +123,64 @@ function init() {
 		} else {
 			return 0.2;
 		}
+	}
+
+	function maketable(me) {
+		setfilter("meta", +me.getAttribute("metacluster"));
+
+		let icaos = new Set();
+		d3.select(me)
+		  .selectAll(".segment")
+		  .each(d=>icaos.add(d.icao));
+		icaoarr = []
+		for (let icao of icaos)
+			icaoarr.push(icao)
+		// sort array by airline
+		icaoarr.sort((a, b)=>{
+			a = icaodb[a].operator;
+			b = icaodb[b].operator;
+			if (a > b) return  1;
+			if (a < b) return -1;
+			return 0;
+		})
+		let sel = d3
+			.select("#planes")
+			.selectAll("tr")
+			.data(icaoarr, d=>d);
+		sel.exit().remove();
+		let rows = sel
+			.enter()
+		    .append("tr");
+		rows.append("td")
+			.classed("icao", true)
+			.classed("filterable", true)
+			.text(d=>icaodb[d].icao)
+			.on("click", d=>setfilter("icao", d));
+		rows.append("td")
+			.classed("country", true)
+			.classed("filterable", true)
+			.on("click", d=>setfilter("country", icaodb[d].country))
+			.text(d=>icaodb[d].country);
+		rows.append("td")
+			.classed("logo", true)
+			.classed("filterable", true)
+			.on("click", d=>setfilter("operator", icaodb[d].operator))
+			.append("img")
+			.attr("src", d=>{
+				let url = icaodb[d].operator;
+				url = url.toLowerCase().replace(/ /g, "-");
+				return `logos/${url}.png`;
+			})
+			.attr("width", 100)
+			.attr("alt", d=>icaodb[d].operator);
+		rows.append("td")
+			.classed("operator", true)
+			.classed("filterable", true)
+			.on("click", d=>setfilter("operator", icaodb[d].operator))
+			.text(d=>icaodb[d].operator);
+		rows.append("td")
+			.classed("model", true)
+			.text(d=>icaodb[d].model);
 	}
 
 	var path = d3.geoPath(projection);
@@ -129,55 +248,7 @@ function init() {
 				if (icaodb == null)
 					return;
 
-				filter.type = "meta";
-				filter.how  = +this.getAttribute("metacluster");
-				update();
-
-				let icaos = new Set();
-				d3.select(this)
-				  .selectAll(".segment")
-				  .each(d=>icaos.add(d.icao));
-				icaoarr = []
-				for (let icao of icaos)
-					icaoarr.push(icao)
-				// sort array by airline
-				icaoarr.sort((a, b)=>{
-					a = icaodb[a].operator;
-					b = icaodb[b].operator;
-					if (a > b) return  1;
-					if (a < b) return -1;
-					return 0;
-				})
-				let sel = d3
-					.select("#planes")
-					.selectAll("tr")
-					.data(icaoarr, d=>d);
-				sel.exit().remove();
-				let rows = sel
-					.enter()
-				    .append("tr");
-				rows.append("td")
-					.classed("icao", true)
-					.text(d=>icaodb[d].icao)
-				rows.append("td")
-					.classed("icao", true)
-					.text(d=>icaodb[d].country)
-				rows.append("td")
-					.classed("logo", true)
-					.append("img")
-					.attr("src", d=>{
-						let url = icaodb[d].operator;
-						url = url.toLowerCase().replace(/ /g, "-");
-						return `logos/${url}.png`;
-					})
-					.attr("width", 100)
-					.attr("alt", d=>icaodb[d].operator);
-				rows.append("td")
-					.classed("operator", true)
-					.text(d=>icaodb[d].operator);
-				rows.append("td")
-					.classed("model", true)
-					.text(d=>icaodb[d].model);
+				maketable(this);
 
 			})
 			.merge(metaclusters);
@@ -281,6 +352,7 @@ function init() {
 
 		setup();
 		update();
+		setfilter(null, null);
 	})
 
 	let map = d3.select("#map").select(".all");

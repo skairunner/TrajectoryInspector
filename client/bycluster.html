@@ -71,6 +71,10 @@
 		border-bottom: 1px solid black;
 	}
 
+	.filterable {
+		cursor: pointer;
+	}
+
 	.logo {
 		width: 110px;
 		overflow-x: hidden;
@@ -87,10 +91,20 @@
 	.model {
 		padding-left: 10px;
 	}
+
+	#filter {
+		border-radius: 50px;
+		margin-left: 20px;
+		margin-right: 10px;
+		line-height: 1.5;
+		width: 20vw;
+		text-align: center;
+	}
 </style>
 
 <body>
 	<div id="buttons" style="display: none"></div>
+	<div id="filter" style="background-color:#fff; color:#000">Filter: <span class="filtertype">Show All</span></div>
 	<div class="content">
 		<div id="svgdiv">
 			<svg id="map" height="600" width="800" viewBox="0 0 800 600">
