@@ -128,7 +128,16 @@ function init() {
 	}
 
 	function maketable(me) {
-		setfilter("meta", +me.getAttribute("metacluster"));
+		let metaid = +me.getAttribute("metacluster");
+		setfilter("meta", metaid);
+		// set color bar
+		d3.select("#colorbar")
+		  .transition()
+		  .duration(300)
+		  .styleTween("background-color", function(d){
+		  	  return d3.interpolateLab(d3.select(this).style("background-color"),
+		  	  			color10[metaid % 10]);
+		  })
 
 		let icaos = new Set();
 		d3.select(me)
@@ -249,7 +258,6 @@ function init() {
 			.on("click", function(d) {
 				if (icaodb == null)
 					return;
-
 				maketable(this);
 
 			})
