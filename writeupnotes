@@ -7,6 +7,9 @@ Excluded ratio: 28.88
 
 Total aircraft tracked: 42030
 
+EDwP runtime
+	 50 rows -  2 minutes 13 seconds
+	100 rows - 24 minutes 32 seconds
 
 Unlike the commonly cited hierarchical edge bundling (Zhou et al 2013), the data in this project is real positional data rather than abstracted start point to end point data.
 

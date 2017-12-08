@@ -3,7 +3,6 @@ import os
 import psycopg2
 import psycopg2.extras
 import re
-import visvalingamwyatt as vw
 
 DIR = "ADBX_RAW/"
 BASE = "2017-08-29-%sZ.json" # HHMM
