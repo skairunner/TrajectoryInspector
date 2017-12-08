@@ -7,10 +7,13 @@ function init() {
 	d3.json("countries.geo.json", (e, d)=>{
 		d3.select(".countries")
 		  .append("path")
+		  .attr("id", "countryline")
 		  .datum(d)
-		  .attr("d", path);
+		  .attr("d", path)
+		  .style("stroke-width", 1);
 		d3.select(".graticules")
 		  .append("path")
+		  .attr("id", "graticule")
 		  .datum(d3.geoGraticule())
 		  .attr("d", path)
 	});
@@ -45,7 +48,7 @@ function init() {
 			  .classed("cluster", true)
 			  .attr("id",d=>"label" + d.label)
 			  .datum(d=>d.segments)
-			  .attr("opacity", 0.7)
+			  .attr("opacity", .8)
 			  .style("stroke", function(d){
 			  	  let label = getLabel(this);
 			  	  if (label == -1)
@@ -63,7 +66,7 @@ function init() {
 			  	  d3.select(this)
 			  	    .style("stroke", col.darker())
 			  	    .style("stroke-width", 1)
-			  	    .attr("opacity", 0.9)
+			  	    .attr("opacity", 1)
 			  	    .raise()
 			  })
 			  .on("mouseleave", function(d){
@@ -71,7 +74,7 @@ function init() {
 			  	  if (label == -1) return;
 			  	  d3.select(this)
 			  	    .style("stroke", color10[label % 10])
-			  	    .attr("opacity", 0.7)
+			  	    .attr("opacity", 0.8)
 			  	    .style("stroke-width", 0.5);
 			  })
 			  .selectAll(".segment")
@@ -93,18 +96,57 @@ function init() {
 
 	let map = d3.select("#map").select(".all");
 
+	// adaptive zooming
+	class AdaptiveZoomState {
+		constructor(zoomlevels, strokewidths) {
+			this.zoomstate = {zoom: 0, oldzoom: 0};
+			this.zoomlevels = zoomlevels;
+			this.strokewidths = strokewidths;
+		}
+
+		setzoom(k, selector) {
+			let zs = this.zoomstate;
+			for (let i = 0; i < this.zoomlevels.length; i++) {
+				if (k < this.zoomlevels[i]) {
+					zs.zoom = i;
+					break;
+				}
+			}
+			if (zs.zoom != zs.oldzoom) {
+				d3.select(selector)
+				  .transition()
+				  .duration(300)
+				  .style("stroke-width", this.strokewidths[zs.zoom]);
+				zs.oldzoom = zs.zoom;
+			}
+		}
+	}
+
+	let countryzoom =
+		new AdaptiveZoomState(
+				[0, 3, 5, 10],
+				[1.0, 0.7, 0.4, 0.2]);
+	let graticulezoom =
+		new AdaptiveZoomState(
+				[0, 5, 10],
+				[1.0, 0.7, 0.5]);
+
 	let zoom = 
 		d3.zoom()
 		  .translateExtent([[-100, -100], [1300, 1300]])
 		  .on("zoom", function() {
+		  		console.log(d3.event.transform.k)
+		  		let k = d3.event.transform.k;
+		  		countryzoom.setzoom(k, "#countryline");
+		  		graticulezoom.setzoom(k, "#graticule")
 			  	map.attr("transform", d3.event.transform)
 			});
 
 	map.insert("rect", ":first-child")
 	   .attr("x", -800)
 	   .attr("y", -800)
-	   .attr("width", 1600)
-	   .attr("height", 1600)
+	   .attr("width", 3200)
+	   .attr("height", 2400)
 	   .style("fill", "none")
 	   .style("pointer-events", "all")
 	   .call(zoom)

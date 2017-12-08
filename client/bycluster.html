@@ -10,8 +10,7 @@
 <script src="utility.js"></script>
 <style>
 	.countries {
-		stroke: #000;
-		stroke-width: 1px;
+		stroke: rgba(0, 0, 0, 1);
 		fill: none;
 	}
 
@@ -22,7 +21,8 @@
 
 	.graticules {
 		stroke: rgba(77, 77, 77, 0.5);
-		stroke-width: 0.5px;
+		/*stroke: rgba(255, 255, 255, 0.3);*/
+		stroke-width: 1px;
 		fill:none;
 	}
 
@@ -37,7 +37,7 @@
 </style>
 
 <body>
-	<svg id="map" height="800" width="800">
+	<svg id="map" height="600" width="800">
 		<g class="all">
 			<g class="countries"></g>
 			<g class="graticules"></g>
