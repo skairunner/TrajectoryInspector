@@ -18,7 +18,51 @@ function init() {
 	];
 	var countryshapes, pathinfo, icaodb = null;
 
-	//
+	// first element is type, second is data
+	var filter = {type: null, how: null}; 
+	// returns true if should display normally, false otherwise.
+	function checkfilter(icao, meta) {
+		if (filter.type == null)
+			return true;
+		if (filter.type == "icao")
+			return icao == filter.how;
+		if (filter.type == "operator")
+			return icaodb[icao].operator == filter.how;
+		if (filter.type == "country")
+			return icaodb[icao].country == filter.how;
+		if (filter.type == "meta")
+			return meta == filter.how;
+		return true;
+	}
+
+	function getstrokewidth(me, mouseovered) {
+		let icao = me.getAttribute("icao");
+		let meta = +me.parentNode.parentNode.getAttribute("metacluster")
+		let label = getLabel(me);
+		if (label == -1)
+			return 0.3;
+		if (checkfilter(icao, meta)) {
+			return 1;
+		} else if (mouseovered) {
+			return 0.5;
+		} else {
+			return 0.2;
+		}
+	}
+
+	function getopacity(me, mouseovered) {
+		if (mouseovered)
+			return 1;
+		let icao = me.getAttribute("icao");
+		let meta = +me.parentNode.parentNode.getAttribute("metacluster")
+		let label = getLabel(me);
+
+		if (checkfilter(icao, meta)) {
+			return 0.9;
+		} else {
+			return 0.2;
+		}
+	}
 
 	var path = d3.geoPath(projection);
 	var color10 = d3.schemeCategory10;
@@ -42,7 +86,7 @@ function init() {
 		  .attr("d", path)
     }
 
-    function setupandupdate() {
+    function setup() {
     	let metaclusters = d3
     		.select("#paths")
     		.html("")
@@ -58,32 +102,37 @@ function init() {
 				if (i == 0) return; // metagroup0 is the outliers
 			 	d3.select(this)
 			  	  .raise()
-			  	  .selectAll(".cluster")
+			  	  .selectAll(".segment")
 			  	  .each(function(d,i) {
-					  	let col = getColor(this, i);
+					  	let col = getColor(this);
 					  	d3.select(this)
 					  	  .style("stroke", col.darker())
-					  	  .style("stroke-width", 1)
-					  	  .attr("opacity", 1);
+					  	  .style("stroke-width", getstrokewidth(this, true))
+					  	  .attr("opacity", getopacity(this, true));
 			  	    });
 			})
 			.on("mouseleave", function(d, i){
 				if (i == 0) return; // metagroup0 is the outliers
 				d3.select(this)
-				  .selectAll(".cluster")
+				  .selectAll(".segment")
 				  .each(function(d, i) {
-					let col = getColor(this, i);
-				  	d3.select(this)
-				  	  .transition()
-				  	  .duration(300)
-				  	  .style("stroke", col)
-				  	  .style("stroke-width", 0.5)
-				  	  .attr("opacity", .8);
+					let col = getColor(this);
+					  	d3.select(this)
+					  	  .transition()
+					  	  .duration(300)
+					  	  .style("stroke", col)
+					  	  .style("stroke-width", getstrokewidth(this))
+					  	  .attr("opacity", getopacity(this));
 				    });
 			})
 			.on("click", function(d) {
 				if (icaodb == null)
 					return;
+
+				filter.type = "meta";
+				filter.how  = +this.getAttribute("metacluster");
+				update();
+
 				let icaos = new Set();
 				d3.select(this)
 				  .selectAll(".segment")
@@ -132,7 +181,6 @@ function init() {
 
 			})
 			.merge(metaclusters);
-		// no UPDATE for metaclusters
 
 		let clusters = metaclusters
 			.selectAll(".cluster")
@@ -143,25 +191,14 @@ function init() {
 			.append("g")
 			.classed("cluster", true)
 			.attr("id",d=>"label" + d.label)
+			.attr("n", (d,i)=>i)
 			.datum(d=>d.segments)
 			.merge(clusters);
-		// UPDATE clusters
-		clusters
-			.attr("opacity", .8)
-			.style("stroke", function(d, i){
-				return getColor(this, i);
-			})
-			.style("stroke-width", function(d){
-				let label = getLabel(this);
-				return label == -1 ? 0.3 : 0.5;
-			});
 		
 		// ENTER segments
 		let segments = clusters
 			.selectAll(".segment")
-			.data(d=>d);
-
-		segments = segments
+			.data(d=>d)
 			.enter()
 			.append("path")
 			.classed("segment", true)
@@ -169,9 +206,28 @@ function init() {
 				  d3.select(this)
 				    .attr("icao", d.icao);
 			})
-			.merge(segments)
-		// UPDATE segments
-		segments
+			.style("stroke", function(d, i){
+				return getColor(this);
+			})
+			.style("stroke-width", function(d){
+				return getstrokewidth(this);
+			})
+			.attr("d", "")
+    }
+
+    function update() {
+    	let clusters = d3
+    		.selectAll(".cluster");;
+
+		let segments = d3
+			.selectAll(".segment")
+			.transition()
+			.duration(300)
+			.style("stroke", function(d, i){
+				return getColor(this);
+			})
+			.style("stroke-width", function(d){ return getstrokewidth(this); })
+			.style("opacity", function(d){ return getopacity(this); })
 			.attr("d", d=>{
 				  // repackage data to be GeoJSON
 				  let geoobj = {type: "LineString", coordinates:[]}
@@ -180,22 +236,19 @@ function init() {
 			});
     }
 
-    function populatetable() {
-
-    }
-
 	// get the label from an element
 	function getLabel(me) {
-		return +me.getAttribute("id").split("label")[1];
+		return +me.parentNode.getAttribute("id").split("label")[1];
 	}
 
 	// get the right color for a trajectory
-	function getColor(me, i) {
+	function getColor(me) {
 		let label = getLabel(me);
 		if (label == -1) return d3.lab("#000");
-		let metaid = +me.parentNode.getAttribute("metacluster");
+		let metaid = +me.parentNode.parentNode.getAttribute("metacluster");
 		let col = d3.lab(color10[metaid % 10]);
-		return col.darker(0.2 * i);
+		let n = +me.parentNode.getAttribute("n");
+		return col.darker(0.2 * n);
 	}
 
 	d3.json("countries.geo.json", (e, d)=>{
@@ -226,7 +279,8 @@ function init() {
 		*/
 		pathinfo = d;
 
-		setupandupdate();
+		setup();
+		update();
 	})
 
 	let map = d3.select("#map").select(".all");
