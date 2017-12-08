@@ -125,7 +125,7 @@ function init() {
 	let countryzoom =
 		new AdaptiveZoomState(
 				[0, 3, 5, 10],
-				[1.0, 0.7, 0.4, 0.2]);
+				[1.0, 0.7, 0.3, 0.15]);
 	let graticulezoom =
 		new AdaptiveZoomState(
 				[0, 5, 10],
@@ -135,7 +135,6 @@ function init() {
 		d3.zoom()
 		  .translateExtent([[-100, -100], [1300, 1300]])
 		  .on("zoom", function() {
-		  		console.log(d3.event.transform.k)
 		  		let k = d3.event.transform.k;
 		  		countryzoom.setzoom(k, "#countryline");
 		  		graticulezoom.setzoom(k, "#graticule")
