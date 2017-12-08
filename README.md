@@ -1,17 +1,18 @@
-Trajectory View
-===
+# Trajectory View
+
 This project reads in ADS-B info as downloadable from ADS-B Exchange,
 and renders plane trajectories by using the `lat`, `long` and `postime` fields of the data,
 applying a trajectory comparison algorithm to produce distances that a clustering algorithm 
 consumes for the coloring.
 
-Libraries used:
-===
+## Libraries used:
 d3.js
 
+## Papers referenced
+to be added
 
-Workflow
-===
+
+## Workflow
 
 Script                     | Description
 ---------------------------|-----------

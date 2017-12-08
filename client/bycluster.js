@@ -45,6 +45,7 @@ function init() {
 			  .classed("cluster", true)
 			  .attr("id",d=>"label" + d.label)
 			  .datum(d=>d.segments)
+			  .attr("opacity", 0.7)
 			  .style("stroke", function(d){
 			  	  let label = getLabel(this);
 			  	  if (label == -1)
@@ -60,12 +61,18 @@ function init() {
 			  	  if (label == -1) return;
 			  	  let col = d3.lab(color10[label % 10]);
 			  	  d3.select(this)
-			  	    .style("stroke", col.brighter())
+			  	    .style("stroke", col.darker())
+			  	    .style("stroke-width", 1)
+			  	    .attr("opacity", 0.9)
+			  	    .raise()
 			  })
 			  .on("mouseleave", function(d){
 			  	  let label = getLabel(this);
+			  	  if (label == -1) return;
 			  	  d3.select(this)
 			  	    .style("stroke", color10[label % 10])
+			  	    .attr("opacity", 0.7)
+			  	    .style("stroke-width", 0.5);
 			  })
 			  .selectAll(".segment")
 			  .data(d=>d)
@@ -81,8 +88,7 @@ function init() {
 			  	  let geoobj = {type: "LineString", coordinates:[]}
 			  	  geoobj.coordinates = d.path.map(el=>[el[0], el[1]])
 			  	  return path(geoobj);
-			  })
-			  .attr("opacity", 0.7);
+			  });
 	})
 
 	let map = d3.select("#map").select(".all");

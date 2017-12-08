@@ -3,7 +3,6 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 import sys
 
-DODBSCAN = False
 
 """ load all the data first """
 
@@ -155,12 +154,13 @@ def metric_pathlength(seg):
         s += (seg[i][0] - seg[i+1][0])**2 + (seg[i][1] - seg[i+1][1])**2
     return s
 
+DODBSCAN = False
 if DODBSCAN:
-    db = DBSCAN(eps=0.005, min_samples=2, metric="precomputed")
+    db = DBSCAN(eps=0.1, min_samples=2, metric="precomputed")
     db.fit(matrix)
     labels = db.labels_
 else:
-    labels = lufucluster(matrix, 0.3)
+    labels = lufucluster(matrix, 0.1)
 
 # repackage data
 maxlabel = max(labels)

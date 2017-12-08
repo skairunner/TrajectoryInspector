@@ -25,7 +25,7 @@ def tryAppend(output, segment, limit=15):
 root = "data_perplane/"
 outdir = "data_segmented-paths/"
 blacklist = ["A234C0.json"]
-for file in os.listdir(root)[:50]:
+for file in os.listdir(root):
     if file in blacklist:
         continue
     with open(root + file) as f:
