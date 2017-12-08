@@ -4,11 +4,30 @@
 	<title>Clusterview</title>
 </head>
 
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="d3-geo-projection.min.js"></script>
 <script src="bycluster.js"></script>
 <script src="utility.js"></script>
 <style>
+	body {
+		font-family: "Open Sans", sans-serif;
+		font-size: 14pt;
+	}
+
+	.content {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-around;
+		margin-top: 20px;
+	}
+
+	#tablediv {
+		overflow-y: auto;
+		height: 600px;
+		margin-left: 2vh;
+	}
+
 	.countries {
 		stroke: rgba(0, 0, 0, 1);
 		fill: none;
@@ -26,24 +45,62 @@
 		fill:none;
 	}
 
-	.timepip {
-		stroke: none;
+	.side {
+		display: inline;
+		float: left;
 	}
 
-	.altitude {
-		fill: none;
-		stroke: rgba(0, 0, 0, 1);
+	svg {
+		border: 1px solid magenta;
+	}
+
+	#planes {
+	}
+
+	table {
+		border-collapse: collapse;
+		border-top: 1px solid black;
+		width: 40vh;
+	}
+
+	tr {
+	}
+
+	td {
+		border-bottom: 1px solid black;
+	}
+
+	.logo {
+		width: 110px;
+		overflow-x: hidden;
+		padding: 10px 20px;
+	}
+
+	.icao {
+		padding-left: 10px;
+	}
+
+	.model {
+		padding-left: 10px;
 	}
 </style>
 
 <body>
-	<div id="buttons"></div>
-	<svg id="map" height="600" width="800">
-		<g class="all">
-			<g class="countries"></g>
-			<g class="graticules"></g>
-			<g id="paths"></g>
-		</g>
-	</svg>
+	<div id="buttons" style="display: none"></div>
+	<div class="content">
+		<div id="svgdiv">
+			<svg id="map" height="600" width="800" viewBox="0 0 800 600">
+				<g class="all">
+					<g class="countries"></g>
+					<g class="graticules"></g>
+					<g id="paths"></g>
+				</g>
+			</svg>
+		</div>
+		<div id="tablediv">
+			<table id="planes">
+			</table>
+		</div>
+	</div>
 </body>
 </html>

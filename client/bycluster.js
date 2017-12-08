@@ -16,7 +16,7 @@ function init() {
 		"azimuthal equidistant",
 		"conic equidistant"
 	];
-	var countryshapes, pathinfo, icaodb;
+	var countryshapes, pathinfo, icaodb = null;
 
 	//
 
@@ -68,18 +68,68 @@ function init() {
 			  	    });
 			})
 			.on("mouseleave", function(d, i){
-				  if (i == 0) return; // metagroup0 is the outliers
-				  d3.select(this)
-				    .selectAll(".cluster")
-				    .each(function(d, i) {
-				  	  let col = getColor(this, i);
-				  	  d3.select(this)
-				  	    .transition()
-				  	    .duration(300)
-				  	    .style("stroke", col)
-				  	    .style("stroke-width", 0.5)
-				  	    .attr("opacity", .8);
+				if (i == 0) return; // metagroup0 is the outliers
+				d3.select(this)
+				  .selectAll(".cluster")
+				  .each(function(d, i) {
+					let col = getColor(this, i);
+				  	d3.select(this)
+				  	  .transition()
+				  	  .duration(300)
+				  	  .style("stroke", col)
+				  	  .style("stroke-width", 0.5)
+				  	  .attr("opacity", .8);
 				    });
+			})
+			.on("click", function(d) {
+				if (icaodb == null)
+					return;
+				let icaos = new Set();
+				d3.select(this)
+				  .selectAll(".segment")
+				  .each(d=>icaos.add(d.icao));
+				icaoarr = []
+				for (let icao of icaos)
+					icaoarr.push(icao)
+				// sort array by airline
+				icaoarr.sort((a, b)=>{
+					a = icaodb[a].operator;
+					b = icaodb[b].operator;
+					if (a > b) return  1;
+					if (a < b) return -1;
+					return 0;
+				})
+				let sel = d3
+					.select("#planes")
+					.selectAll("tr")
+					.data(icaoarr, d=>d);
+				sel.exit().remove();
+				let rows = sel
+					.enter()
+				    .append("tr");
+				rows.append("td")
+					.classed("icao", true)
+					.text(d=>icaodb[d].icao)
+				rows.append("td")
+					.classed("icao", true)
+					.text(d=>icaodb[d].country)
+				rows.append("td")
+					.classed("logo", true)
+					.append("img")
+					.attr("src", d=>{
+						let url = icaodb[d].operator;
+						url = url.toLowerCase().replace(/ /g, "-");
+						return `logos/${url}.png`;
+					})
+					.attr("width", 100)
+					.attr("alt", d=>icaodb[d].operator);
+				rows.append("td")
+					.classed("operator", true)
+					.text(d=>icaodb[d].operator);
+				rows.append("td")
+					.classed("model", true)
+					.text(d=>icaodb[d].model);
+
 			})
 			.merge(metaclusters);
 		// no UPDATE for metaclusters
@@ -117,7 +167,7 @@ function init() {
 			.classed("segment", true)
 			.each(function(d){
 				  d3.select(this)
-				    .classed("icao" + d.icao, true);
+				    .attr("icao", d.icao);
 			})
 			.merge(segments)
 		// UPDATE segments
@@ -128,6 +178,10 @@ function init() {
 				  geoobj.coordinates = d.path.map(el=>[el[0], el[1]])
 				  return path(geoobj);
 			});
+    }
+
+    function populatetable() {
+
     }
 
 	// get the label from an element
@@ -147,6 +201,10 @@ function init() {
 	d3.json("countries.geo.json", (e, d)=>{
 		countryshapes = d;
 		drawCountries();
+	});
+
+	d3.json("icaodb.json", (e, d)=>{
+		icaodb = d;
 	});
 
 	//draw annotated clusters
@@ -239,4 +297,18 @@ function init() {
 	  	    setupandupdate();
 	  	    drawCountries();
 	  });
+
+    function resizesvg() {
+    	let W = window.innerWidth;
+    	let w = W * .50;
+    	if (W < 1281)
+    		w = W * .9;
+    	d3.select("svg")
+    	  .transition()
+    	  .duration(300)
+    	  .attr("width", w);
+    }
+    resizesvg();
+	d3.select(window)
+	  .on("resize", resizesvg);
 }
