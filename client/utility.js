@@ -1,3 +1,4 @@
+"use strict";
 // keyfunc is applied to each object before comparing.
 function arrmin(arr, keyfunc) {
 	if (keyfunc == undefined) {
