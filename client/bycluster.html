@@ -24,8 +24,6 @@
 	}
 
 	#tablediv {
-		overflow-y: auto;
-		height: 600px;
 		margin-left: 2vh;
 	}
 
@@ -102,6 +100,11 @@
 		float: left;
 	}
 
+	.tableoverflow {
+		overflow-y: auto;
+		height: 600px;		
+	}
+
 	#clear {
 		float: left;
 		font-size: 12px;
@@ -140,8 +143,9 @@
 		</div>
 		<div id="tablediv">
 			<dir id="colorbar" style="background-color: #FFF"></dir>
-			<table id="planes">
-			</table>
+			<div class="tableoverflow">
+				<table id="planes"></table>
+			</div>
 		</div>
 	</div>
 </body>

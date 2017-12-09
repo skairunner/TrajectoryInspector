@@ -30,6 +30,7 @@ Script                     | Description
 `makemanifest.py`          | Creates a listing of files for use by `dbscan.py` and C# EDwP.
 `edwp.exe`                 | Applies EDwP to trajectories to create distance matrix, `distmatrix.json`
 `dbscan.py`                | Given a `distmatrix.json`, clusters trajectories into `dbscanned.json`
+`icaodbcombiner.py`        | Constructs an `icaodb.json` for frontend to reference.
 
 Utilities           | Description
 --------------------|-----------
