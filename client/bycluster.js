@@ -3,7 +3,9 @@
 document.addEventListener("DOMContentLoaded", init)
 
 function init() {
-	var projection = d3.geoWinkel3(); //geoBaker
+	var projection = d3.geoWinkel3()
+					   .scale(600)
+					   .translate([480, 800]); //geoBaker
 
 	// LARK ZONE
 	var projid = 0;
@@ -105,13 +107,13 @@ function init() {
 		let meta = +me.parentNode.parentNode.getAttribute("metacluster")
 		let label = getLabel(me);
 		if (label == -1)
-			return 0.3;
+			return 1;
 		if (mouseovered) {
-			return 1.15;
+			return 3.5;
 		} else if (checkfilter(icao, meta)) {
-			return 0.9;
+			return 2.5;
 		} else {
-			return 0.2;
+			return 1.5;
 		}
 	}
 
@@ -500,31 +502,37 @@ function init() {
 
 	let countryzoom =
 		new AdaptiveZoomState(
-				[0, 3, 5, 10],
-				[1.0, 0.7, 0.3, 0.15]);
+				[0, 2, 4, 8],
+				[2.4, 1.4, 0.6, 0.3]);
 	let graticulezoom =
 		new AdaptiveZoomState(
-				[0, 5, 10],
-				[1.0, 0.7, 0.5]);
+				[0, 5, 8],
+				[2.0, 1.6, 1]);
 
 	let zoom = 
 		d3.zoom()
-		  .translateExtent([[-100, -100], [1300, 1300]])
+		  .translateExtent([[-1000, 0], [2000, 1500]])
+		  .scaleExtent([1, 10])
 		  .on("zoom", function() {
 		  		let k = d3.event.transform.k;
 		  		countryzoom.setzoom(k, "#countryline");
-		  		graticulezoom.setzoom(k, "#graticule")
-			  	map.attr("transform", d3.event.transform)
+		  		graticulezoom.setzoom(k, "#graticule");
+
+			  	map.attr("transform", d3.event.transform);
 			});
 
-	map.insert("rect", ":first-child")
-	   .attr("x", -800)
-	   .attr("y", -800)
-	   .attr("width", 3200)
-	   .attr("height", 2400)
+	d3.select("#zoomdiv")
+	  // .attr("transform", "scale(3) translate(-300, 0)")
+
+	d3.select("svg")
+	   .insert("rect", ":first-child")
+	   .attr("x", 0)
+	   .attr("y", 0)
+	   .attr("width", 1000)
+	   .attr("height", 1000)
 	   .style("fill", "none")
 	   .style("pointer-events", "all")
-	   .call(zoom)
+	   .call(zoom);
 
 	// create projection buttons
 	d3.select("#buttons")
