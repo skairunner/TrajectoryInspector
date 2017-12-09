@@ -10,12 +10,12 @@ The EDwP algorithm is written in C# for faster speed while still retaining the r
 
 ## Libraries used:
 * d3.js
-* sklearn
-* py-wget
-* Selenium
 * Newtonsoft Json
-* psycopg2
 * pillow
+* psycopg2
+* py-wget
+* selenium
+* sklearn
 
 ## Workflow
 

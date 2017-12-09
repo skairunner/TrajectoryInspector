@@ -17,6 +17,7 @@ function init() {
 		"conic equidistant"
 	];
 	var countryshapes, pathinfo, icaodb = null;
+	var allicaos;
 
 	// first element is type, second is data
 	var filter = {type: null, how: null};
@@ -24,7 +25,7 @@ function init() {
 		icao: {
 			fillcol: "#8e0000",
 			fontcol: "#FFFFFF",
-			name: "ICAO"
+			name: "ICAO code"
 		},
 		operator: {
 			fillcol: "#4c4cff",
@@ -82,7 +83,6 @@ function init() {
 	d3.select("#clear")
 	  .on("click", ()=>setfilter(null, null));
 
-
 	// returns true if should display normally, false otherwise.
 	function checkfilter(icao, meta) {
 		if (filter.type == null)
@@ -127,33 +127,17 @@ function init() {
 		}
 	}
 
-	function maketable(me) {
-		let metaid = +me.getAttribute("metacluster");
-		setfilter("meta", metaid);
-		// set color bar
-		d3.select("#colorbar")
-		  .transition()
-		  .duration(300)
-		  .styleTween("background-color", function(d){
-		  	  return d3.interpolateLab(d3.select(this).style("background-color"),
-		  	  			color10[metaid % 10]);
-		  })
+	function getThumbnailFromIcao(icao) {
+		let op = icaodb[icao].operator;
+		return getThumbnail(op);
+	}
 
-		let icaos = new Set();
-		d3.select(me)
-		  .selectAll(".segment")
-		  .each(d=>icaos.add(d.icao));
-		icaoarr = []
-		for (let icao of icaos)
-			icaoarr.push(icao)
-		// sort array by airline
-		icaoarr.sort((a, b)=>{
-			a = icaodb[a].operator;
-			b = icaodb[b].operator;
-			if (a > b) return  1;
-			if (a < b) return -1;
-			return 0;
-		})
+	function getThumbnail(operator) {
+		operator = operator.toLowerCase().replace(/ /g, "-");
+		return `logos/${operator}.png`;
+	}
+
+	function maketable_icaos(icaoarr) {
 		let sel = d3
 			.select("#planes")
 			.selectAll("tr")
@@ -177,21 +161,56 @@ function init() {
 			.classed("filterable", true)
 			.on("click", d=>setfilter("operator", icaodb[d].operator))
 			.append("img")
-			.attr("src", d=>{
-				let url = icaodb[d].operator;
-				url = url.toLowerCase().replace(/ /g, "-");
-				return `logos/${url}.png`;
-			})
+			.attr("src", d=>getThumbnailFromIcao(d))
 			.attr("width", 100)
 			.attr("alt", d=>icaodb[d].operator);
 		rows.append("td")
-			.classed("operator", true)
-			.classed("filterable", true)
-			.on("click", d=>setfilter("operator", icaodb[d].operator))
-			.text(d=>icaodb[d].operator);
-		rows.append("td")
 			.classed("model", true)
 			.text(d=>icaodb[d].model);
+	}
+
+	// kinda like filters, but only for country and operator
+	function maketable_allof(icaos, type, how) {
+		icaos = icaos.filter(d=>icaodb[d][type] == how);
+		d3.select("#colorbar")
+			.transition()
+			.duration(300)
+			.styleTween("background-color", function(d){
+				  return d3.interpolateLab(d3.select(this)
+				  							 .style("background-color"),
+				  							filtercss[type].fillcol);
+			})
+		maketable_icaos(icaos);
+	}
+
+	function maketable_meta(this_meta) {
+		let metaid = +this_meta.getAttribute("metacluster");
+		setfilter("meta", metaid);
+		// set color bar
+		d3.select("#colorbar")
+		  .transition()
+		  .duration(300)
+		  .styleTween("background-color", function(d){
+		  	  return d3.interpolateLab(d3.select(this).style("background-color"),
+		  	  			color10[metaid % 10]);
+		  })
+
+		let icaos = new Set();
+		d3.select(this_meta)
+		  .selectAll(".segment")
+		  .each(d=>icaos.add(d.icao));
+		icaoarr = listFromSet(icaos);
+		for (let icao of icaos)
+			icaoarr.push(icao)
+		// sort array by airline
+		icaoarr.sort((a, b)=>{
+			a = icaodb[a].operator;
+			b = icaodb[b].operator;
+			if (a > b) return  1;
+			if (a < b) return -1;
+			return 0;
+		})
+		maketable_icaos(icaoarr);
 	}
 
 	var path = d3.geoPath(projection);
@@ -222,6 +241,8 @@ function init() {
     		.html("")
 			.selectAll(".clustergroup")
 			.data(pathinfo);
+
+		let icaos = new Set();
 		// ENTER megaclusters
 		metaclusters = metaclusters
 			.enter()
@@ -258,7 +279,7 @@ function init() {
 			.on("click", function(d) {
 				if (icaodb == null)
 					return;
-				maketable(this);
+				maketable_meta(this);
 
 			})
 			.merge(metaclusters);
@@ -286,6 +307,7 @@ function init() {
 			.each(function(d){
 				  d3.select(this)
 				    .attr("icao", d.icao);
+				  icaos.add(d.icao);
 			})
 			.style("stroke", function(d, i){
 				return getColor(this);
@@ -293,7 +315,8 @@ function init() {
 			.style("stroke-width", function(d){
 				return getstrokewidth(this);
 			})
-			.attr("d", "")
+			.attr("d", "");
+		allicaos = listFromSet(icaos);
     }
 
     function update() {
@@ -332,6 +355,20 @@ function init() {
 		return col.darker(0.2 * n);
 	}
 
+	function openmodal() {
+		d3.select("#modalbackground")
+		  .style("display", "initial");
+		d3.select("#modal")
+		  .style("display", "flex");
+	}
+
+	function closemodal() {
+		d3.select("#modalbackground")
+		  .style("display", "none");
+		d3.select("#modal")
+		  .style("display", "none");
+	}
+
 	d3.json("countries.geo.json", (e, d)=>{
 		countryshapes = d;
 		drawCountries();
@@ -339,6 +376,74 @@ function init() {
 
 	d3.json("icaodb.json", (e, d)=>{
 		icaodb = d;
+		let operators = new Set(), countries = new Set();
+		for (let icao in icaodb) {
+			let entry = icaodb[icao];
+			operators.add(entry.operator);
+			countries.add(entry.country);
+		}
+		operators = listFromSet(operators);
+		operators.sort();
+		countries = listFromSet(countries);
+		countries.sort();
+
+		d3.select("#allcountries")
+		  .selectAll(".listingoption")
+		  .data(countries)
+		  .enter()
+		  .append("div")
+		  .text(d=>d)
+		  .classed("listingoption", true)
+		  .on("click", d=>{
+		  	  if (allicaos != null) {
+		  	  	  maketable_allof(allicaos, "country", d);
+		  	  	  setfilter("country", d);
+		  	  	  closemodal();
+		  	  }
+		  });
+
+		d3.select("#alloperators")
+		  .selectAll(".listingoption")
+		  .data(operators)
+		  .enter()
+		  .append("div")
+		  .classed("listingoption", true)
+		  .on("click", d=>{
+		  	  if (allicaos != null) {
+		  	  	  maketable_allof(allicaos, "operator", d);
+		  	  	  setfilter("operator", d);
+		  	  	  closemodal();
+		  	  }
+		   })
+		  .append("img")
+		  .attr("src", d=>getThumbnail(d))
+		  .attr("tooltiptext", d=>d)
+		  .attr("alt", d=>d);
+
+		let tether = null;
+		// clicking on modal background removes it
+		d3.select("#modalbackground")
+		  .on("click", closemodal);
+
+		// clicking on button reveals it
+		d3.select("#modalopen")
+		  .on("click", function(){
+		  	  openmodal();
+			  // add a tether to the modal
+			  // need to while it's visible else it bugs
+			  if (tether == null) {
+				  tether = new Tether({
+					element: document.querySelector("#modal"),
+					target: document.querySelector("#modalopen"),
+					attachment: "top right",
+					targetAttachment: "bottom right",
+					offset: "-5px 0px",
+					constraints: [{
+						to: "window",
+						pin: true
+					}]});
+			  }
+		  });
 	});
 
 	//draw annotated clusters

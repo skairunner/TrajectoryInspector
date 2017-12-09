@@ -1,12 +1,8 @@
-ADBX_perplane
-__pycache__
-icao-db
-data_*
-screenshots
+# libraries
+tether.min.js
+d3-geo-projection.min.js
 visvalingamwyatt-master
 winpdb-master
-d3-geo-projection.min.js
-distmatrix*
 
 # misc generated data files
 client/logos
@@ -17,6 +13,12 @@ edwpmanifest.json
 distmatrix.json
 dbscanned.json
 icaodb.json
+ADBX_perplane
+__pycache__
+icao-db
+data_*
+screenshots
+distmatrix*
 
 # profiling file
 *.prof

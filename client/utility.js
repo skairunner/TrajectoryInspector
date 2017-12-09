@@ -114,3 +114,11 @@ function getKeys(o) {
 	}
 	return out;
 }
+
+function listFromSet(set) {
+	let out = [];
+	for (let el of set) {
+		out.push(el);
+	}
+	return out;
+}

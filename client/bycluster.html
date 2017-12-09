@@ -9,127 +9,16 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="d3-geo-projection.min.js"></script>
 <script src="bycluster.js"></script>
+<script src="tether.min.js"></script>
 <script src="utility.js"></script>
-<style>
-	body {
-		font-family: "Open Sans", sans-serif;
-		font-size: 14pt;
-	}
-
-	.content {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: space-around;
-		margin-top: 20px;
-	}
-
-	#tablediv {
-		margin-left: 2vh;
-	}
-
-	.countries {
-		stroke: rgba(0, 0, 0, 1);
-		fill: none;
-	}
-
-	#paths path {
-		/*stroke: rgba(0, 0, 120, 0.5);*/
-		fill: none;
-	}
-
-	.graticules {
-		stroke: rgba(77, 77, 77, 0.5);
-		/*stroke: rgba(255, 255, 255, 0.3);*/
-		stroke-width: 1px;
-		fill:none;
-	}
-
-	.side {
-		display: inline;
-		float: left;
-	}
-
-	svg {
-		border: 1px solid magenta;
-	}
-
-	#planes {
-	}
-
-	table {
-		border-collapse: collapse;
-		table-layout: fixed
-	}
-
-	tr {
-	}
-
-	td {
-		border-bottom: 1px solid black;
-	}
-
-	.filterable {
-		cursor: pointer;
-	}
-
-	.logo {
-		width: 110px;
-		overflow-x: hidden;
-		padding: 10px 20px;
-	}
-
-	.country {
-	}
-
-	.icao {
-		padding-left: 10px;
-	}
-
-	.model {
-		padding-left: 10px;
-	}
-
-	#filter {
-		border-radius: 50px;
-		margin-left: 20px;
-		margin-right: 10px;
-		line-height: 1.5;
-		width: 200px;
-		text-align: center;
-		cursor: pointer;
-		float: left;
-	}
-
-	.tableoverflow {
-		overflow-y: auto;
-		height: 600px;		
-	}
-
-	#clear {
-		float: left;
-		font-size: 12px;
-		vertical-align: middle;
-		cursor: pointer;
-		border-bottom-style: dotted;
-		border-bottom-width: 1px;
-	}
-
-	#UI {
-		padding-bottom: 15px;
-	}
-
-	#colorbar {
-		height: 2vh;
-		padding: 0;
-		margin: 0;
-	}
-</style>
+<link rel="stylesheet" href="bycluster.css">
 
 <body>
 	<div id="UI">
 		<div id="buttons" style="display: none"></div>
-		<div id="filter" style="background-color:#fff; color:#000">Filter: <span class="filtertype">Show All</span></div>
-		<div id="clear">[clear]</div>
+		<div id="filter" class="roundbutton" style="background-color:#fff; color:#000">Filter: <span class="filtertype">Show All</span></div>
+		<div id="clear" class="roundbutton">clear</div>
+		<div id="modalopen" class="roundbutton">List all…</div>
 	</div>
 	<div class="content" style="clear: left">
 		<div id="svgdiv">
@@ -146,6 +35,17 @@
 			<div class="tableoverflow">
 				<table id="planes"></table>
 			</div>
+		</div>
+	</div>
+	<div id="modalbackground" style="display:none;"></div>
+	<div id="modal" style="display:none;">
+		<div class="listingcontainer">
+			<div class="listingtitle">By operator</div>
+			<div id="alloperators" class="listing"></div>
+		</div>
+		<div class="listingcontainer">
+			<div class="listingtitle">By country</div>
+			<div id="allcountries" class="listing"></div>
 		</div>
 	</div>
 </body>
