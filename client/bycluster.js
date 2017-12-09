@@ -512,7 +512,7 @@ function init() {
 	let zoom = 
 		d3.zoom()
 		  .translateExtent([[-1000, 0], [2000, 1500]])
-		  .scaleExtent([1, 10])
+		  .scaleExtent([0.5, 10])
 		  .on("zoom", function() {
 		  		let k = d3.event.transform.k;
 		  		countryzoom.setzoom(k, "#countryline");
