@@ -445,7 +445,7 @@ function init() {
 	});
 
 	//draw annotated clusters
-	d3.json("../dbscanned.json", (e, d)=>{
+	d3.json("dbscanned.json", (e, d)=>{
 		// Structure of json file:
 		/*
 			{
