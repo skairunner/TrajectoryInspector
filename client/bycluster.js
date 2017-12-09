@@ -201,7 +201,7 @@ function init() {
 		d3.select(this_meta)
 		  .selectAll(".segment")
 		  .each(d=>icaos.add(d.icao));
-		icaoarr = listFromSet(icaos);
+		let icaoarr = listFromSet(icaos);
 		// sort array by airline
 		icaoarr.sort((a, b)=>{
 			a = icaodb[a].operator;
@@ -539,7 +539,7 @@ function init() {
 	  	    drawCountries();
 	  });
 
-	MAGICNUM = 1200;
+	let MAGICNUM = 1200;
     function resizesvg() {
     	let W = window.innerWidth;
     	let w = W * .50;
