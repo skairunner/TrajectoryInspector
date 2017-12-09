@@ -200,8 +200,6 @@ function init() {
 		  .selectAll(".segment")
 		  .each(d=>icaos.add(d.icao));
 		icaoarr = listFromSet(icaos);
-		for (let icao of icaos)
-			icaoarr.push(icao)
 		// sort array by airline
 		icaoarr.sort((a, b)=>{
 			a = icaodb[a].operator;
