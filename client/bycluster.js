@@ -107,13 +107,13 @@ function init() {
 		let meta = +me.parentNode.parentNode.getAttribute("metacluster")
 		let label = getLabel(me);
 		if (label == -1)
-			return 1;
-		if (mouseovered) {
-			return 3.5;
-		} else if (checkfilter(icao, meta)) {
-			return 2.5;
-		} else {
 			return 1.5;
+		if (mouseovered) {
+			return 6;
+		} else if (checkfilter(icao, meta)) {
+			return 4;
+		} else {
+			return 2;
 		}
 	}
 
