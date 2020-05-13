@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Path viewer</title>
+</head>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="d3-geo-projection.min.js"></script>
+<script src="forcedirectedpaths.js"></script>
+<script src="utility.js"></script>
+<style>
+	.countries {
+		stroke: #000;
+		stroke-width: 1px;
+		fill: none;
+	}
+
+	#paths path {
+		/*stroke: rgba(0, 0, 120, 0.5);*/
+		fill: none;
+	}
+
+	.graticules {
+		stroke: rgba(77, 77, 77, 0.5);
+		stroke-width: 0.5px;
+		fill:none;
+	}
+
+	.timepip {
+		stroke: none;
+	}
+
+	.altitude {
+		fill: none;
+		stroke: rgba(0, 0, 0, 1);
+	}
+</style>
+
+<body>
+	<svg id="map" height="800" width="800">
+		<g class="all">
+			<g class="countries"></g>
+			<g class="graticules"></g>
+			<g id="paths"></g>
+		</g>
+	</svg>
+</body>
+</html>
